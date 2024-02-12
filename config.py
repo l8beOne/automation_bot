@@ -1,1 +1,3 @@
 BOT_TOKEN = "6626809373:AAFh03_0a6F-zb8v295vfi51VQSaVfjiNh0"
+CREDENTIALS_FILE = 'creds.json'
+spreadsheet_id = '1W2VigJfqsPFK12JuIj62l1kIaeJOE03xK-PTkzmMh2E'
