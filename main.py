@@ -24,7 +24,7 @@ async def process_help_command(message: Message):
     await message.answer(
         'schedule'
     )
-
+# Этот хэндлер будет срабатывать на команду "/schedule"
 @dp.message(Command(commands=['schedule']))
 async def process_schedule_command(message: Message):
     # Авторизуемся и получаем service — экземпляр доступа к API
