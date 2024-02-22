@@ -5,8 +5,7 @@ from sqlalchemy import (
     Integer,
     MetaData,
     String,
-    TIME,
-    Table
+    TIME
 )
 from sqlalchemy.orm import relationship
 
@@ -16,20 +15,16 @@ from .database import Base
 metadata = MetaData()
 
 
-group_users = Table(
-    'group_users',
-    metadata,
-    Column('group_id', ForeignKey('groups.id'), primary_key=True),
-    Column('users_id', ForeignKey('users.id'), primary_key=True)
-)
+class SheduleSubjects(Base):
+    __tablename__ = 'schedule_subjects'
+    schedule_id = Column(Integer, ForeignKey('schedules.id'), primary_key=True)
+    subject_id = Column(Integer, ForeignKey('subjects.id'), primary_key=True)
 
 
-schedule_subjects = Table(
-    'schedule_subjects',
-    metadata,
-    Column('schedule_id', ForeignKey('schedules.id'), primary_key=True),
-    Column('subject_id', ForeignKey('subjects.id'), primary_key=True)
-)
+class GroupUsers(Base):
+    __tablename__ = 'group_users'
+    group_id = Column(Integer, ForeignKey('groups.id'), primary_key=True)
+    users_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
 
 
 class Subject(Base):
