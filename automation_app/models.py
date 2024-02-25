@@ -77,10 +77,11 @@ class User(Base):
         'Group',
         secondary='group_users',
         back_populates='users',
-        lazy='dynamic'
+        lazy='dynamic',
+        nullable=True
     )
-    program_id = Column(Integer, ForeignKey('programs.id'))
-    program = relationship('programs', back_populates='users')
+    program_id = Column(Integer, ForeignKey('programs.id'), nullable=True)
+    program = relationship('programs', back_populates='users', nullable=True)
 
 
 class Group(Base):
