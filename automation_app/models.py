@@ -12,7 +12,7 @@ from sqlalchemy.orm import relationship
 from .database import Base
 
 
-metadata = MetaData()
+# metadata = MetaData()
 
 
 class SheduleSubjects(Base):
@@ -31,18 +31,18 @@ class Subject(Base):
     __tablename__ = 'schedules'
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
-    zoom_link = Column(String)
+    zoom_link = Column(String, nullable=True)
     type = Column(String, nullable=False)
     teacher = Column(String, nullable=False)
-    classroom = Column(String, nullable=False)
+    classroom = Column(String, nullable=True)
     time = Column(TIME, nullable=False)
     schedules = relationship(
         'Schedule',
         secondary='schedule_subjects',
         back_populates='subjects'
     )
-    group_id = Column(Integer, ForeignKey('groups.id'))
-    group = relationship('groups', back_populates='subjects')
+    group_id = Column(Integer, ForeignKey('groups.id'), nullable=True)
+    group = relationship('groups', back_populates='subjects', nullable=True)
 
 
 class Schedule(Base):
@@ -54,7 +54,8 @@ class Schedule(Base):
     subjects = relationship(
         'Subject',
         secondary='schedule_subjects',
-        back_populates='schedules'
+        back_populates='schedules',
+        lazy='dynamic'
     )
 
 
@@ -62,8 +63,8 @@ class Program(Base):
     __tablename__ = 'programs'
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
-    schedules = relationship('shedules', back_populates='program')
-    users = relationship('users', back_populates='program')
+    schedules = relationship('shedules', back_populates='program', lazy='dynamic')
+    users = relationship('users', back_populates='program', lazy='dynamic')
 
 
 class User(Base):
@@ -75,7 +76,8 @@ class User(Base):
     groups = relationship(
         'Group',
         secondary='group_users',
-        back_populates='users'
+        back_populates='users',
+        lazy='dynamic'
     )
     program_id = Column(Integer, ForeignKey('programs.id'))
     program = relationship('programs', back_populates='users')
@@ -88,6 +90,7 @@ class Group(Base):
     users = relationship(
         'User',
         secondary='group_users',
-        back_populates='groups'
+        back_populates='groups',
+        lazy='dynamic'
     )
-    subjects = relationship('subjects', back_populates='group')
+    subjects = relationship('subjects', back_populates='group', lazy='dynamic')

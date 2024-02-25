@@ -23,8 +23,8 @@ async def create_schedule(*args, **kwargs):
 
 @router_schedule.get('/{user_id}/', response_model=ScheduleSubjectes)
 async def get_specific_schedule(user_id : int, session: AsyncSession = Depends(get_async_session)):
-    user_result = await session.execute(select(User).where(User.id == user_id))
-    user = user_result.scalars().one()
+    # user_result = await session.execute(select(User).where(User.id == user_id))
+    # user = user_result.scalars().one()
     program_sub_query = (select(Program).where(Program.users.any_(id=user_id))).subquery()
     program_qwery = await session.execute(select(Program).where(Program.users.any_(id=user_id)))
     program = program_qwery.all()
@@ -35,11 +35,10 @@ async def get_specific_schedule(user_id : int, session: AsyncSession = Depends(g
 
 
 
-    qwery = select(Schedule).\
-            filter(check_date_for_schedule(Schedule.date) == True).\
-            where(user.in_ Schedule.program.users).\
-            filter(Schedule.program.any(users))
-            
+    # qwery = select(Schedule).\
+    #         filter(check_date_for_schedule(Schedule.date) == True).\
+    #         where(user.in_ Schedule.program.users).\
+    #         filter(Schedule.program.any(users))
             # join(Schedule.subjects).\
             # filter(Subject.group_id.in_([None, user.groups]) == None or user.in_(Subject.group.users))
     result = await session.execute(qwery)
