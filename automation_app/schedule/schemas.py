@@ -56,7 +56,7 @@ class SubjectSchema(BaseModel):
     type: SubjectType
     teacher: str
     zoom_link: Optional[str]
-    classroom: str
+    classroom: Optional[str]
     time: datetime
     group: GroupSchema
 
