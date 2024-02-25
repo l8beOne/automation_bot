@@ -21,7 +21,12 @@ async def create_schedule(*args, **kwargs):
     return
 
 
-@router_schedule.get('/{user_id}/', response_model=ScheduleSubjectes)
+@router_schedule.post('/subjects')
+async def update_subjects(*args, **kwargs):
+    return
+
+
+@router_schedule.get('/{user_id}/{day}/', response_model=ScheduleSubjectes)
 async def get_specific_schedule(user_id : int, session: AsyncSession = Depends(get_async_session)):
     # user_result = await session.execute(select(User).where(User.id == user_id))
     # user = user_result.scalars().one()
@@ -43,6 +48,3 @@ async def get_specific_schedule(user_id : int, session: AsyncSession = Depends(g
             # filter(Subject.group_id.in_([None, user.groups]) == None or user.in_(Subject.group.users))
     result = await session.execute(qwery)
     return result.all()
-
-
-@router_schedule
