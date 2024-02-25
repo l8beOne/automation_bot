@@ -5,6 +5,17 @@ from pydantic import BaseModel
 from schedule.schemas import GroupSchema, ProgramSchema
 
 
+class UserCreateSchema(BaseModel):
+    id: int
+    telegram_id: int
+    name: str
+    last_name: str
+
+
+class UserProgramCreateSchema(UserCreateSchema):
+    program_id: int
+
+
 class UserSchema(BaseModel):
     id: int
     telegram_id: int
