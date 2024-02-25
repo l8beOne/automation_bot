@@ -32,13 +32,12 @@ MarkupSafe==2.1.5
 mccabe==0.7.0
 orjson==3.9.13
 passlib==1.7.4
-psycopg2==2.9.9
 pycodestyle==2.11.1
 pycparser==2.21
 pydantic==2.6.1
 pydantic-extra-types==2.5.0
 pydantic-settings==2.1.0
-pydantic_core==2.16.2
+pydantic-core==2.16.2
 pyflakes==3.2.0
 PyJWT==2.8.0
 python-dotenv==1.0.1
