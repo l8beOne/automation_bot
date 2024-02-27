@@ -10,8 +10,8 @@ from alembic import context
 
 sys.path.append(os.path.join(sys.path[0], 'automation_app'))
 
-from automation_app.database import Base
-from automation_app.config import POSTGRES_HOST, POSTGRES_PORT, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB
+from app.database import Base
+from app.config import POSTGRES_HOST, POSTGRES_PORT, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

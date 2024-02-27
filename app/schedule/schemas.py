@@ -4,15 +4,11 @@ from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
-from users.schemas import UserSchema
+from ..schemas import ProgramSchema, UserSchema
+# from ..users.schemas import UserSchema
 
 
-class ProgramName(Enum):
-    pmi_1 = 'pmi_1'
-    pmi_2 = 'pmi_2'
-    pmi_3 = 'pmi_3'
-    padii_1 = 'padii_1'
-    padii_2 = 'padii_2'
+
 
 
 # class GroupName(Enum):
@@ -32,9 +28,7 @@ class SubjectType(Enum):
     practice = 'practice'
 
 
-class ProgramSchema(BaseModel):
-    id: int
-    name: ProgramName
+
 
 
 class GroupSchema(BaseModel):
