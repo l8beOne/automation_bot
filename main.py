@@ -12,21 +12,28 @@ bot = Bot(token=config.BOT_TOKEN)
 dp = Dispatcher()
 
 
-# Этот хэндлер будет срабатывать на команду "/start"
 @dp.message(Command(commands=["start"]))
 async def process_start_command(message: Message):
+    '''
+    Этот хэндлер будет срабатывать на команду "/start"
+    '''
     await message.answer('Здарова')
 
 
-# Этот хэндлер будет срабатывать на команду "/help"
 @dp.message(Command(commands=['help']))
 async def process_help_command(message: Message):
+    '''
+    Этот хэндлер будет срабатывать на команду "/help"
+    '''
     await message.answer(
         'schedule'
     )
-# Этот хэндлер будет срабатывать на команду "/schedule"
+
 @dp.message(Command(commands=['schedule']))
 async def process_schedule_command(message: Message):
+    '''
+    Этот хэндлер будет срабатывать на команду "/schedule"
+    '''
     # Авторизуемся и получаем service — экземпляр доступа к API
     credentials = ServiceAccountCredentials.from_json_keyfile_name(
         config.CREDENTIALS_FILE,
@@ -43,11 +50,14 @@ async def process_schedule_command(message: Message):
     ).execute()
     await message.answer(str(values))
 
-# Этот хэндлер будет срабатывать на любые текстовые сообщения (кроме /start /help /schedule)
+#
 @dp.message()
 async def send_echo(message: Message):
+    '''
+    Этот хэндлер будет срабатывать на любые текстовые сообщения (кроме /start /help /schedule)
+    '''
     await message.reply(text=message.text)
-
+    
 
 if __name__ == '__main__':
     dp.run_polling(bot)
