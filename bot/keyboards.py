@@ -36,13 +36,11 @@ async def contacts_buttons():
 async def hse_info_buttons():
     builder = ReplyKeyboardBuilder()
     builder.row(
-        KeyboardButton(text="Отчисление")
-    )
-    builder.row(
-        KeyboardButton(text="Академический отпуск")
-    )
-    builder.row(
         KeyboardButton(text="Гайд по вышке")
+    )
+    builder.row(
+        KeyboardButton(text="Академический отпуск"),
+        KeyboardButton(text="Отчисление")
     )
     builder.row(
         KeyboardButton(text="Назад")
