@@ -4,7 +4,7 @@ from typing import Optional
 from pydantic import BaseModel
 
 
-class ProgramName(Enum):
+class ProgramName(str, Enum):
     pmi_1 = "pmi_1"
     pmi_2 = "pmi_2"
     pmi_3 = "pmi_3"
@@ -12,17 +12,27 @@ class ProgramName(Enum):
     padii_2 = "padii_2"
 
 
-class ProgramSchema(BaseModel):
-    id: int
+class ProgramBaseSchema(BaseModel):
     name: ProgramName
 
 
-class UserSchema(BaseModel):
+class ProgramSchema(ProgramBaseSchema):
     id: int
+
+
+class UserBaseSchema(BaseModel):
     telegram_id: int
     name: str
     last_name: str
-    program: Optional[ProgramSchema]
 
     class Config:
-        orm_mode = True
+        from_attributes = True
+
+
+class UserGetSchema(UserBaseSchema):
+    id: int
+
+
+class UserSchema(UserBaseSchema):
+    id: int
+    program: Optional[ProgramSchema]

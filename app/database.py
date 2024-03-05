@@ -18,6 +18,11 @@ async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
         yield session
 
 
+# async def get_session() -> AsyncGenerator[AsyncSession, None]:
+#     async with engine.begin() as conn:
+#         yield conn
+
+
 async def init_models():
     async with engine.begin() as conn:
         # раскоментировать строку ниже, чтобы удалить таблицу для обновления структуры

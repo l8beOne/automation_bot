@@ -1,7 +1,7 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
-from .schedule.router import router_schedule
+from .schedule.router import router_schedule, router_program
 from .users.router import router_users
 
 from .database import init_models
@@ -20,3 +20,4 @@ app = FastAPI(title="automation_bot", lifespan=lifespan)
 
 app.include_router(router_schedule)
 app.include_router(router_users)
+app.include_router(router_program)

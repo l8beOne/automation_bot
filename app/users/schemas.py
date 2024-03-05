@@ -1,14 +1,10 @@
 from typing import List, Optional
 
-from pydantic import BaseModel
-
-# from schedule.schemas import GroupSchema, ProgramSchema
 from ..schedule.schemas import GroupSchema
-from ..schemas import ProgramSchema, UserSchema
+from ..schemas import UserSchema, UserBaseSchema
 
 
-class UserCreateSchema(BaseModel):
-    id: int
+class UserCreateSchema(UserBaseSchema):
     telegram_id: int
     name: str
     last_name: str
@@ -17,6 +13,12 @@ class UserCreateSchema(BaseModel):
 class UserProgramCreateSchema(UserCreateSchema):
     program_id: int
 
+    class Config:
+        from_attributes = True
+
 
 class UserGroups(UserSchema):
-    groups: List[GroupSchema]
+    groups: Optional[List[GroupSchema]]
+
+    class Config:
+        from_attributes = True
