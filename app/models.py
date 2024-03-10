@@ -9,11 +9,11 @@ from .base import Base
 class Group(Base):
     __tablename__ = "groups"
     id = Column(Integer, primary_key=True)
-    name = Column(String, nullable=False)
+    name = Column(String, nullable=False, unique=True)
     users = relationship(
         "User", secondary="group_users", back_populates="groups", lazy="dynamic"
     )
-    subjects = relationship("subjects", back_populates="group", lazy="dynamic")
+    subjects = relationship("Subject", back_populates="group", lazy="dynamic")
 
 
 class User(Base):
@@ -26,7 +26,7 @@ class User(Base):
         "Group", secondary="group_users", back_populates="users", lazy="dynamic"
     )
     program_id = Column(Integer, ForeignKey("programs.id"), nullable=True)
-    program = relationship("programs", back_populates="users")
+    program = relationship("Program", back_populates="users")
 
 
 class SheduleSubjects(Base):
@@ -54,7 +54,7 @@ class Subject(Base):
         "Schedule", secondary="schedule_subjects", back_populates="subjects"
     )
     group_id = Column(Integer, ForeignKey(Group.id), nullable=True)
-    group = relationship("groups", back_populates="subjects")
+    group = relationship("Group", back_populates="subjects")
 
 
 class Schedule(Base):
@@ -62,7 +62,7 @@ class Schedule(Base):
     id = Column(Integer, primary_key=True)
     date = Column(DATE, nullable=False)
     program_id = Column(Integer, ForeignKey("programs.id"))
-    program = relationship("programs", back_populates="schedules")
+    program = relationship("Program", back_populates="schedules")
     subjects = relationship(
         "Subject",
         secondary="schedule_subjects",
@@ -74,6 +74,6 @@ class Schedule(Base):
 class Program(Base):
     __tablename__ = "programs"
     id = Column(Integer, primary_key=True)
-    name = Column(String, nullable=False)
-    schedules = relationship("shedules", back_populates="program", lazy="dynamic")
-    users = relationship("users", back_populates="program", lazy="dynamic")
+    name = Column(String, nullable=False, unique=True)
+    schedules = relationship("Schedule", back_populates="program", lazy="dynamic")
+    users = relationship("User", back_populates="program", lazy="dynamic")

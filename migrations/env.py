@@ -8,7 +8,7 @@ from sqlalchemy import pool
 
 from alembic import context
 
-sys.path.append(os.path.join(sys.path[0], 'automation_app'))
+sys.path.append(os.path.join(sys.path[0], 'app'))
 
 from app.database import Base
 from app.config import POSTGRES_HOST, POSTGRES_PORT, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB

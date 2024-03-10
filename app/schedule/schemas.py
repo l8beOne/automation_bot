@@ -5,10 +5,6 @@ from typing import List, Optional
 from pydantic import BaseModel, Field
 
 from ..schemas import ProgramSchema, UserSchema
-# from ..users.schemas import UserSchema
-
-
-
 
 
 # class GroupName(Enum):
@@ -28,52 +24,63 @@ class SubjectType(Enum):
     practice = 'practice'
 
 
-
-
-
-class GroupSchema(BaseModel):
-    id: int
+class GroupBaseSchema(BaseModel):
     name: str
     number: int = Field(ge=1, le=3)
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
-class GroupUsers(GroupSchema):
+class GroupSchema(GroupBaseSchema):
+    id: int
+
+
+class GroupUsers(GroupBaseSchema):
+    id: int
     users: List[UserSchema]
 
 
-class SubjectSchema(BaseModel):
-    id: int
+class SubjectBaseSchema(BaseModel):
     name: str
     type: SubjectType
     teacher: str
-    zoom_link: Optional[str]
-    classroom: Optional[str]
+    zoom_link: Optional[str] = None
+    classroom: Optional[str] = None
     time: datetime
-    group: GroupSchema
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
-class ScheduleSchema(BaseModel):
+class SubjectGetSchema(SubjectBaseSchema):
     id: int
-    # program: ProgramSchema
+
+
+class SubjectSchema(SubjectBaseSchema):
+    id: int
+    group: GroupSchema
+
+
+class ScheduleBaseSchema(BaseModel):
     date: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
+
+
+class ScheduleSchema(ScheduleBaseSchema):
+    id: int
 
 
 class ScheduleProgram(ScheduleSchema):
+    id: int
     program: ProgramSchema
 
 
-class ScheduleSubjectes(ScheduleSchema):
+class ScheduleSubjects(ScheduleSchema):
     subjects: List[SubjectSchema]
 
 
-class ProgramSchedule(ProgramSchema):
-    schedules: List[ScheduleSubjectes]
+# class ProgramSchedule(ProgramSchema): вряд ли будет нужна
+#     schedules: List[ScheduleSubjects]

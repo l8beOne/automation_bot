@@ -1,55 +1,100 @@
-from datetime import datetime as dt
+from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException, Request
-from sqlalchemy import and_, any_, or_, select
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
 
-from ..database import get_async_session
-from ..models import Group, GroupUsers, Program, Schedule, Subject, User
-from .schemas import ScheduleSubjectes
-from .utils import check_date_for_schedule
-
-from .crud import get_sepcific_schedule_crud
+from ..database import get_async_session, get_session
+from ..schemas import ProgramSchema, ProgramBaseSchema
+from .crud import (
+    create_group_crud,
+    create_program_crud,
+    create_subject_crud,
+    get_groups_crud,
+    get_programs_crud,
+    get_sepcific_schedule_crud,
+    get_subjects_crud
+)
+from .schemas import (
+    GroupBaseSchema,
+    ScheduleBaseSchema,
+    ScheduleSubjects,
+    GroupSchema,
+    SubjectBaseSchema,
+    SubjectGetSchema
+)
 
 
 router_schedule = APIRouter(prefix="/schedule", tags=["Schedule"])
+router_program = APIRouter(prefix="/program", tags=["Program"])
+router_group = APIRouter(prefix="/group", tags=["Group"])
+router_subject = APIRouter(prefix="/subject", tags=["Subject"])
 
 
 @router_schedule.post("/")
 async def create_schedule(
-    # request: Request,
+    new_schedule: ScheduleBaseSchema,
     db: AsyncSession = Depends(get_async_session)
 ):
     ...
 
 
 @router_schedule.post("/subjects")
-async def update_subjects(*args, **kwargs):
+async def update_subjects():
     ...
 
 
-@router_schedule.get("/{user_id}/{day}/", response_model=ScheduleSubjectes)
+@router_schedule.get("/{user_id}/{day}/", response_model=ScheduleSubjects)
 async def get_specific_schedule(
-    user_id: int, day: str, session: AsyncSession = Depends(get_async_session)
+    user_id: int,
+    day: str,
+    session: AsyncSession = Depends(get_async_session)
 ):
-    # user_result = await session.execute(select(User).where(User.id == user_id))
-    # user = user_result.scalars().one()
-
-
-    ### пример того что имеет право быть в роутере
-    # if user_id in ban_list:
-    #     raise HTTPException(400, "ты кто?")
-
-
-
     result = await get_sepcific_schedule_crud(user_id, day, session)
-    
-    # qwery = select(Schedule).\
-    #         filter(check_date_for_schedule(Schedule.date) == True).\
-    #         where(user.in_ Schedule.program.users).\
-    #         filter(Schedule.program.any(users))
-    # join(Schedule.subjects).\
-    # filter(Subject.group_id.in_([None, user.groups]) == None or user.in_(Subject.group.users))
-    
+    return result.all()
+
+
+@router_program.post("/", response_model=ProgramSchema)
+async def create_program(
+    new_program: ProgramBaseSchema,
+    session: AsyncSession = Depends(get_async_session),
+    db: AsyncSession = Depends(get_session)
+):
+    result = await create_program_crud(new_program, session, db)
+    return result.first()
+
+
+@router_program.get("/", response_model=List[ProgramSchema])
+async def get_programs(session: AsyncSession = Depends(get_session)):
+    result = await get_programs_crud(session)
+    return result.all()
+
+
+@router_group.post("/", response_model=GroupSchema)
+async def create_group(
+    new_group: GroupBaseSchema,
+    session: AsyncSession = Depends(get_async_session),
+    db: AsyncSession = Depends(get_session)
+):
+    result = await create_group_crud(new_group, session, db)
+    return result.first()
+
+
+@router_group.get("/", response_model=List[GroupSchema])
+async def get_groups(session: AsyncSession = Depends(get_session)):
+    result = await get_groups_crud(session)
+    return result.all()
+
+
+@router_subject.post("/")
+async def create_subject(
+    new_subject: SubjectBaseSchema,
+    session: AsyncSession = Depends(get_async_session)
+):
+    result = await create_subject_crud(new_subject, session)
+    return result
+
+
+@router_subject.get("/", response_model=List[SubjectGetSchema])
+async def get_subjects(session: AsyncSession = Depends(get_session)):
+    result = await get_subjects_crud(session)
     return result.all()

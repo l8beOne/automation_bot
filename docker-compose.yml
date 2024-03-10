@@ -4,10 +4,10 @@ services:
   postgres:
     image: postgres
     ports:
-      - 5437:5432
+      - 5434:5432
     environment:
       - POSTGRES_HOST=localhost
-      - POSTGRES_PORT=5432
+      - POSTGRES_PORT=5434
       - POSTGRES_USER=myusername
       - POSTGRES_PASSWORD=mypassword
       - POSTGRES_DB=schedule_db
