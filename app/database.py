@@ -8,7 +8,6 @@ from .config import POSTGRES_DSN_ASYNC
 from .base import Base
 
 DATABASE_URL = POSTGRES_DSN_ASYNC
-print(DATABASE_URL)
 
 engine = create_async_engine(DATABASE_URL)
 async_session_maker = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
@@ -27,9 +26,9 @@ async def get_db():
 #         yield session
 
 
-async def get_session() -> AsyncGenerator[AsyncSession, None]:
-    async with engine.begin() as conn:
-        yield conn
+# async def get_session() -> AsyncGenerator[AsyncSession, None]:
+#     async with engine.begin() as conn:
+#         yield conn
 
 
 async def init_models():
