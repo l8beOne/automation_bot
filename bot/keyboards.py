@@ -2,7 +2,7 @@ from aiogram.types import KeyboardButton
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
 
 
-async def start_buttons():
+def start_buttons():
     builder = ReplyKeyboardBuilder()
     builder.row(
         KeyboardButton(text="Контакты")
@@ -17,7 +17,7 @@ async def start_buttons():
     return start_keyboard
 
 
-async def contacts_buttons():
+def contacts_buttons():
     builder = ReplyKeyboardBuilder()
     builder.row(
         KeyboardButton(text="Учебный офис")
@@ -33,7 +33,7 @@ async def contacts_buttons():
     return contacts_keyboard
 
 
-async def hse_info_buttons():
+def hse_info_buttons():
     builder = ReplyKeyboardBuilder()
     builder.row(
         KeyboardButton(text="Гайд по вышке")

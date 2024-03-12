@@ -7,6 +7,7 @@ from aiogram.types import Message
 
 
 router = Router()
+keyboard_start_buttons = keyboards.start_buttons()
 
 
 @router.message(Command(commands=["start"]))
@@ -21,16 +22,16 @@ async def process_start_commands(message: Message):
     )
     await message.answer(
         **content.as_kwargs(),
-        reply_markup= await keyboards.start_buttons()
+        reply_markup= keyboard_start_buttons
     )
 
 
-@router.message(F.text.lower() == "назад")
+@router.message(F.text.lower().in_({"назад"}))
 async def back_command(message: Message):
     '''
     Этот хэндлер будет срабатывать на кнопку "Назад".
     '''
     await message.answer(
         text = "Вы вернулись назад",
-        reply_markup= await keyboards.start_buttons()
+        reply_markup= keyboard_start_buttons
     )
