@@ -1,8 +1,9 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
-from .schedule.router import router_schedule, router_program
-from .users.router import router_users
+from .routers import groups, programs, subjects
+from .schedule import router as schedules
+from .users import router as users
 
 from .database import init_models
 
@@ -18,6 +19,8 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="automation_bot", lifespan=lifespan)
 
 
-app.include_router(router_schedule)
-app.include_router(router_users)
-app.include_router(router_program)
+app.include_router(schedules.router)
+app.include_router(users.router)
+app.include_router(programs.router)
+app.include_router(groups.router)
+app.include_router(subjects.router)

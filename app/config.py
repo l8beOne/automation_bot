@@ -5,7 +5,7 @@ load_dotenv()
 
 
 POSTGRES_HOST = getenv("POSTGRES_HOST", "localhost")
-POSTGRES_PORT: int = getenv("POSTGRES_PORT", 5432)
+POSTGRES_PORT: int = getenv("POSTGRES_PORT", 5430)
 POSTGRES_USER = getenv("POSTGRES_USER", "myusername")
 POSTGRES_PASSWORD = getenv("POSTGRES_PASSWORD", "mypassword")
 POSTGRES_DB = getenv("POSTGRES_DB", "schedule_db")

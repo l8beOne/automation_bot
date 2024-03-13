@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date, time
 from enum import Enum
 from typing import List, Optional
 
@@ -19,14 +19,14 @@ from ..schemas import ProgramSchema, UserSchema
 #     c_plus = 'c_plus'
 
 
-class SubjectType(Enum):
+class SubjectType(str, Enum):
     lecture = 'lecture'
     practice = 'practice'
 
 
 class GroupBaseSchema(BaseModel):
     name: str
-    number: int = Field(ge=1, le=3)
+    # number: int = Field(ge=1, le=3)
 
     class Config:
         from_attributes = True
@@ -47,7 +47,7 @@ class SubjectBaseSchema(BaseModel):
     teacher: str
     zoom_link: Optional[str] = None
     classroom: Optional[str] = None
-    time: datetime
+    time: time
 
     class Config:
         from_attributes = True
@@ -63,7 +63,7 @@ class SubjectSchema(SubjectBaseSchema):
 
 
 class ScheduleBaseSchema(BaseModel):
-    date: datetime
+    date: date
 
     class Config:
         from_attributes = True

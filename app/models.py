@@ -38,7 +38,7 @@ class SheduleSubjects(Base):
 class GroupUsers(Base):
     __tablename__ = "group_users"
     group_id = Column(Integer, ForeignKey(Group.id), primary_key=True)
-    users_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
+    users_id = Column(Integer, ForeignKey(User.id), primary_key=True)
 
 
 class Subject(Base):
