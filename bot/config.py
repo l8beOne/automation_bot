@@ -5,6 +5,7 @@ load_dotenv()
 BOT_TOKEN =         getenv('BOT_TOKEN')
 CREDENTIALS_FILE =  getenv('CREDENTIALS_FILE')
 spreadsheet_id =    getenv('spreadsheet_id')
+ADMIN_ID =          getenv('ADMIN_ID')
 
 POSTGRES_HOST=      getenv("POSTGRES_HOST","localhost")
 POSTGRES_PORT=      getenv("POSTGRES_PORT", 5432)
