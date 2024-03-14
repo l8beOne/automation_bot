@@ -2,6 +2,7 @@ from aiogram import F, Router, Bot
 from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.filters import CommandObject, Command
 from aiogram.fsm.context import FSMContext
+from utils.announcement_sender_list import SenderList
 import config
 from utils.announcement_state import Steps
 from keyboards import inline_keyboards
@@ -39,6 +40,7 @@ async def select_button(call: CallbackQuery, bot: Bot, state: FSMContext):
         message_id = int(data.get("message_id"))
         chat_id = int(data.get("chat_id"))
         await confirm(call.message, bot, message_id, chat_id)
+        await state.set_state(Steps.get_url)
     await call.answer()
 
 
@@ -84,7 +86,7 @@ async def confirm(message: Message, bot: Bot, message_id: int, chat_id: int, rep
                          ]))
 
 
-async def send_process(call: CallbackQuery, bot: Bot, state: FSMContext, request: Request):
+async def send_process(call: CallbackQuery, bot: Bot, state: FSMContext, request: Request, senderlist: SenderList):
     data = await state.get_data()
     message_id = data.get("message_id")
     chat_id = data.get("chat_id")
@@ -95,8 +97,9 @@ async def send_process(call: CallbackQuery, bot: Bot, state: FSMContext, request
         await call.message.edit_text(f"Начинаю рассылку!", reply_markup=None)
         if not await request.check_table(announce_name):
             await request.create_table(announce_name)
-        await call.message.answer(f"Объявление успешно отправлено!")
-        await request.drop_table(announce_name)
+        message_count = await senderlist.transmitter(announce_name, chat_id, message_id, button_text, button_url)
+        await call.message.answer(f"Объявление успешно отправлено {message_count} пользователям!")
+        #await request.drop_table(announce_name)
     elif call.data == "cancel_announce":
         await call.message.edit_text(f"Отменил рассылку", reply_markup=None)
     await state.clear()

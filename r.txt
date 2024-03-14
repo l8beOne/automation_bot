@@ -50,6 +50,7 @@ google-auth-httplib2==0.2.0
     # via google-api-python-client
 googleapis-common-protos==1.62.0
     # via google-api-core
+greenlet==3.0.3
 h11==0.14.0
     # via uvicorn
 httplib2==0.22.0

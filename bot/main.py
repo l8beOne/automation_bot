@@ -1,5 +1,6 @@
 import asyncio
 import asyncpg
+from utils.announcement_sender_list import SenderList
 from middlewares.dbmiddleware import DbSession
 from utils.announcement_state import Steps
 import config
@@ -41,11 +42,13 @@ async def main():
     dp.callback_query.register(announcement_sender.select_button, Steps.select_button)
     dp.message.register(announcement_sender.get_text_button, Steps.get_text_button)
     dp.message.register(announcement_sender.get_url, Steps.get_url)
+    dp.callback_query.register(announcement_sender.send_process, F.data.in_(["confirm_announce", "cancel_announce"]))
+    sender_list = SenderList(bot, pool_connect)
     # Регистрируем роутеры
     dp.include_routers(schedule.router, start_back.router, contacts.router, hse_info.router, different_types.router)
     # Запускаем бота и пропускаем все накопленные входящие
     await bot.delete_webhook(drop_pending_updates=True)
-    await dp.start_polling(bot)
+    await dp.start_polling(bot, senderlist=sender_list)
     
 
 if __name__ == '__main__':

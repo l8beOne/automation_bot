@@ -14,11 +14,10 @@ class Request:
     async def create_table(self, table_name):
         query = f"CREATE TABLE {table_name} (user_id bigint NOT NULL, status text, description text, PRIMARY KEY (user_id));"
         await self.connector.execute(query)
-        query = f"INSERT INTO {table_name} (user_id, status, description) SELECT user_id, 'in_process', null FROM users"
+        query = f"INSERT INTO {table_name} (user_id, status, description) SELECT telegram_id, 'in_process', null FROM users;"
         await self.connector.execute(query)
 
 
     async def drop_table(self, table_name):
         query = f"DROP TABLE {table_name};"
         await self.connector.execute(query)
-        

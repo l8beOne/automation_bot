@@ -8,7 +8,7 @@ spreadsheet_id =    getenv('spreadsheet_id')
 ADMIN_ID =          getenv('ADMIN_ID')
 
 POSTGRES_HOST=      getenv("POSTGRES_HOST","localhost")
-POSTGRES_PORT=      getenv("POSTGRES_PORT", 5434)
+POSTGRES_PORT=      getenv("POSTGRES_PORT", 5430)
 POSTGRES_USER=      getenv("POSTGRES_USER","myusername")
 POSTGRES_PASSWORD=  getenv("POSTGRES_PASSWORD","mypassword")
 POSTGRES_DB=        getenv("POSTGRES_DB","schedule_db")
