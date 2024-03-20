@@ -11,3 +11,4 @@ alembic
 asyncpg
 apiclient
 greenlet
+redis
