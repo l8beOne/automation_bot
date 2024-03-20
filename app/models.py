@@ -19,7 +19,7 @@ class Group(Base):
 class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True)
-    telegram_id = Column(Integer)
+    telegram_id = Column(Integer, unique=True)
     name = Column(String, nullable=False)
     last_name = Column(String, nullable=False)
     groups = relationship(

@@ -4,6 +4,8 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from ..schemas import ProgramName
+
 from ..database import get_db
 from ..schedule.crud import create_subject_crud, get_subjects_crud
 from ..schedule.schemas import SubjectBaseSchema, SubjectGetSchema
@@ -16,9 +18,10 @@ router = APIRouter(prefix="/subject", tags=["Subject"])
 async def create_subject(
     new_subjects: List[SubjectBaseSchema],
     schedule_date: date,
+    program_name: ProgramName,
     session: AsyncSession = Depends(get_db)
 ):
-    result = await create_subject_crud(new_subjects, schedule_date, session)
+    result = await create_subject_crud(new_subjects, schedule_date, program_name, session)
     return result
 
 

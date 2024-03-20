@@ -1,40 +1,64 @@
 from datetime import date
 from typing import List
 from fastapi import Depends, HTTPException
-from sqlalchemy import select, insert
+from sqlalchemy import and_, or_, select, insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..database import get_db
-from ..models import Group, Program, Schedule, SheduleSubjects, Subject
+from ..models import Group, Program, Schedule, SheduleSubjects, Subject, User
 from ..schemas import ProgramBaseSchema, ProgramName
 from .schemas import GroupBaseSchema, ScheduleBaseSchema, SubjectBaseSchema
 
 
 async def get_sepcific_schedule_crud(
-    user_id,
-    day,
+    user_telegram_id: int,
+    day: date,
     session: AsyncSession
 ):
-    ...
-    # program_sub_query = (
-    #     select(Program).where(Program.users.any_(id=user_id))
-    # ).subquery()
-    # program_qwery = await session.execute(
-    #     select(Program).where(Program.users.any_(id=user_id))
-    # )
-    # program = program_qwery.all()
-    # group_qwery = await session.execute(
-    #     select(Group).where(Group.users.any_(id=user_id))
-    # )
-    # groups = group_qwery.all()
-    # subject_qwery = select(Subject).where(
-    #     or_(Subject.group_id.is_(None), Subject.group.in_(groups))
-    # )
-    # qwery = (
-    #     select(Schedule).where(Schedule.program.is_(program_sub_query)).join(Subject)
-    # )
-    # result = await session.execute(qwery)
-    # return result
+    user = await session.execute(
+        select(User.id, User.program_id).where(User.telegram_id == user_telegram_id)
+    )
+    user_result = user.first()
+    user_id = user_result[0]
+    user_program_id = user_result[1]
+    if not user_id:
+        return {
+            "status": "error",
+            "status_code": 404,
+            "detail": "No user with this telegram_id"
+        }
+    if not user_program_id:
+        return {
+            "status": "error",
+            "status_code": 404,
+            "detail": "User must choose program"
+        }
+
+    schedule = await session.execute(
+        select(Schedule.id).where(
+            Schedule.program_id == user_program_id and
+            Schedule.date == day
+        )
+    )
+    user_schedule_id = schedule.scalar()
+    if not user_schedule_id:
+        return {
+            "status": "error",
+            "status_code": 404,
+            "detail": "No schedule for this date and program"
+        }
+    
+    groups = await session.execute(select(Group.id).where(Group.users.any(id=user_id)))
+    user_groups = [group_id for group_id in groups.scalars()] + [None,]
+    print(user_groups)
+
+    subjects = await session.execute(
+        select(Subject).where(
+            and_(Subject.group_id.in_(user_groups),
+            Subject.schedules.any(id=user_schedule_id))
+        )
+    )
+    return subjects.scalars()
 
 
 async def create_schedule_crud(
@@ -113,10 +137,8 @@ async def create_group_crud(
     session: AsyncSession,
     db: AsyncSession
 ):
-    qwery = select(Group).where(Group.name == new_group.name)
-    result = await db.execute(qwery)
-    db_group = result.scalar()
-    print(db_group)
+    group = await db.execute(select(Group).where(Group.name == new_group.name))
+    db_group = group.scalar()
     if db_group:
         return {
             "status": "error",
@@ -124,11 +146,9 @@ async def create_group_crud(
             "detail": "Group already registered"
         }
     else:
-        stmt = insert(Group).values(**new_group.model_dump())
-        await session.execute(stmt)
+        await session.execute(insert(Group).values(**new_group.model_dump()))
         await session.commit()
-        qwery = select(Group).where(Group.name == new_group.name)
-        result = await db.execute(qwery)
+        result = await db.execute(select(Group).where(Group.name == new_group.name))
         return result.scalars()
 
 
@@ -141,11 +161,27 @@ async def get_groups_crud(session: AsyncSession):
 async def create_subject_crud(
     new_subjects: List[SubjectBaseSchema],
     schedule_date: date,
+    program_name: ProgramName,
     session: AsyncSession
 ):
+    program_result = await session.execute(
+        select(Program.id).where(
+            Program.name == program_name
+        )
+    )
+    schedule_program_id = program_result.scalar()
+    if not schedule_program_id:
+        return {
+            "status": "error",
+            "status_code": 400,
+            "detail": "No program for this schedule"
+        }
     schedule_exists_result = await session.execute(
         select(Schedule.id).where(
-            Schedule.date == schedule_date
+            and_(
+                Schedule.date == schedule_date,
+                Schedule.program_id == schedule_program_id
+            )
         )
     )
     schedule_id = schedule_exists_result.scalar()
@@ -158,16 +194,19 @@ async def create_subject_crud(
     for new_subject in new_subjects:
         subject_exists_result = await session.execute(
             select(Subject.id).where(
-                Subject.classroom == new_subject.classroom and
-                Subject.name == new_subject.name and
-                Subject.teacher == new_subject.teacher and
-                Subject.time == new_subject.time and
-                Subject.type == new_subject.type and
-                Subject.zoom_link == new_subject.zoom_link
+                and_(
+                    Subject.classroom == new_subject.classroom,
+                    Subject.name == new_subject.name,
+                    Subject.teacher == new_subject.teacher,
+                    Subject.time == new_subject.time,
+                    Subject.type == new_subject.type,
+                    Subject.zoom_link == new_subject.zoom_link
+                )
             )
         )
         subject_id = subject_exists_result.scalar()
         if subject_id:
+            print(subject_id)
             schedule_subjects = await session.execute(
                 select(Schedule.id).where(
                     Schedule.subjects.any(id=subject_id)
@@ -183,6 +222,7 @@ async def create_subject_crud(
                 )
                 await session.commit()
         else:
+            print(1)
             group_exists_result = await session.execute(
                 select(Group.id).where(
                     Group.name == new_subject.name
@@ -190,6 +230,7 @@ async def create_subject_crud(
             )
             group_id = group_exists_result.scalar()
             if group_id:
+                print(group_id)
                 await session.execute(
                     insert(Subject).values(
                         **new_subject.model_dump(),
@@ -197,6 +238,7 @@ async def create_subject_crud(
                     )
                 )
                 await session.commit()
+                print(2)
             else:
                 await session.execute(
                     insert(Subject).values(
@@ -204,14 +246,17 @@ async def create_subject_crud(
                     )
                 )
                 await session.commit()
+                print(3)
             subject_exists_result = await session.execute(
                 select(Subject.id).where(
-                    Subject.classroom == new_subject.classroom and
-                    Subject.name == new_subject.name and
-                    Subject.teacher == new_subject.teacher and
-                    Subject.time == new_subject.time and
-                    Subject.type == new_subject.type and
-                    Subject.zoom_link == new_subject.zoom_link
+                    and_(
+                        Subject.classroom == new_subject.classroom,
+                        Subject.name == new_subject.name,
+                        Subject.teacher == new_subject.teacher,
+                        Subject.time == new_subject.time,
+                        Subject.type == new_subject.type,
+                        Subject.zoom_link == new_subject.zoom_link
+                    )
                 )
             )
             subject_id = subject_exists_result.scalar()
@@ -228,4 +273,4 @@ async def create_subject_crud(
 async def get_subjects_crud(session: AsyncSession):
     qwery = select(Subject)
     result = await session.execute(qwery)
-    return result
+    return result.scalars()

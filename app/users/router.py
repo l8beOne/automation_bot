@@ -23,7 +23,13 @@ async def regisrtation(
     new_user: UserCreateSchema,
     session: AsyncSession = Depends(get_db)
 ):
-    return await regisrtation_crud(new_user, session)
+    result = await regisrtation_crud(new_user, session)
+    if result.get("status") == "error":
+        raise HTTPException(
+            status_code=result.get("status_code"),
+            detail=result.get("detail")
+        )
+    return result
 
 
 @router.get("/", response_model=List[UserGetSchema])
@@ -69,4 +75,9 @@ async def get_specific_user(
     session: AsyncSession = Depends(get_db)
 ):
     result = await get_user_crud(user_id, session)
-    return result.first()
+    if type(result) == dict and result.get("status") == "error":
+        raise HTTPException(
+            status_code=result.get("status_code"),
+            detail=result.get("detail")
+        )
+    return result
