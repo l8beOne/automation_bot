@@ -1,4 +1,4 @@
-import keyboards
+from keyboards import reply_keyboards
 from aiogram import Router, F
 from aiogram.enums import ParseMode
 from aiogram.filters import Command
@@ -7,7 +7,7 @@ from aiogram.types import Message
 
 
 router = Router()
-keyboard_start_buttons = keyboards.start_buttons()
+keyboard_start_buttons = reply_keyboards.start_buttons()
 
 
 @router.message(Command(commands=["start"]))

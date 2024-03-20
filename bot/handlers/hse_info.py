@@ -1,12 +1,12 @@
-import keyboards
-import texts
+from keyboards import reply_keyboards
+from utils import texts
 from aiogram import Router, F
 from aiogram.enums import ParseMode
 from aiogram.types import Message
 
 
 router = Router()
-keyboard_hse_info_buttons = keyboards.hse_info_buttons()
+keyboard_hse_info_buttons = reply_keyboards.hse_info_buttons()
 
 @router.message(F.text.lower().in_({"информация про вышку"}))
 async def hse_info_commands(message: Message):
