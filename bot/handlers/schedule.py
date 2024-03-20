@@ -32,9 +32,14 @@ async def process_schedule_command(message: Message):
     service = googleapiclient.discovery.build('sheets', 'v4', http = httpAuth)
 
     # Пример чтения файла
-    values = service.spreadsheets().values().get(
+    
+    values = list(service.spreadsheets().values().get(
         spreadsheetId=config.spreadsheet_id,
-        range='H1:M12',
-        majorDimension='COLUMNS'
-    ).execute()
-    await message.answer(str(values))
+        range='I2:M12',
+        majorDimension='ROWS'
+    ).execute().values())[2:][0]
+
+    schedule = []
+    for rows in values:
+        schedule.append(' '.join(rows))
+    await message.answer('\n\n'.join(schedule))
