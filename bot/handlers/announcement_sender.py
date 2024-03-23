@@ -1,30 +1,32 @@
 from aiogram import F, Router, Bot
 from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
-from aiogram.filters import CommandObject, Command
 from aiogram.fsm.context import FSMContext
 from utils.announcement_sender_list import SenderList
-import config
 from utils.announcement_state import Steps
 from keyboards import inline_keyboards
 from utils.database_connect import Request
+from filters.is_admin_filter import AdminCommandFilter
+
 
 router = Router()
 
 
-#@router.message(Command(commands="announce"))
-async def make_announce(message: Message, command: CommandObject, state: FSMContext):
+@router.message(AdminCommandFilter("/announce"))
+async def make_announce(message: Message, state: FSMContext):
     '''
     Этот хэндлер обрабатывает комманду "announce" и переводит пользователя в состояние отправки текста для объявления.
     '''
-    if not command.args:
+    args = " ".join(message.text.split()[1:])
+    if not args:
         await message.answer("Для создания рассылки введите комманду /announce и имя рассылки ")
         return
-    await message.answer(f"Приступаем создавать рассылку. Имя объявления - {command.args}\r\n\r\n"
+    await message.answer(f"Приступаем создавать рассылку. Имя объявления - {args}\r\n\r\n"
                          f"Отправьте сообщение, которое будет использовано как объявление")
-    await state.update_data(announce_name=command.args)
+    await state.update_data(announce_name=args)
     await state.set_state(Steps.get_announcement_message)
 
 
+@router.message(Steps.get_announcement_message)
 async def get_announcement_message(message: Message, state: FSMContext):
     '''
     Этот хэндлер обрабатывает текст объявления и предлагает добавть кнопку в него.
@@ -36,6 +38,7 @@ async def get_announcement_message(message: Message, state: FSMContext):
     await state.set_state(Steps.select_button)
 
 
+@router.callback_query(Steps.select_button)
 async def select_button(call: CallbackQuery, bot: Bot, state: FSMContext):
     '''
     Этот хэндлер обрабатывает добавление кнопки/продолжение без кнопки.
@@ -54,6 +57,7 @@ async def select_button(call: CallbackQuery, bot: Bot, state: FSMContext):
     await call.answer()
 
 
+@router.message(Steps.get_text_button)
 async def get_text_button(message: Message, state: FSMContext):
     '''
     Этот хэндлер обрабатывает текст для кнопки.
@@ -63,6 +67,7 @@ async def get_text_button(message: Message, state: FSMContext):
     await state.set_state(Steps.get_url)
 
 
+@router.message(Steps.get_url)
 async def get_url(message: Message, bot: Bot, state: FSMContext):
     '''
     Этот хэндлер обрабатывает ссылку для кнопки.
@@ -82,7 +87,6 @@ async def get_url(message: Message, bot: Bot, state: FSMContext):
     chat_id = int(data.get("chat_id"))
     await confirm(message, bot, message_text, message_id, chat_id, added_keyboard)
      
-
 
 async def confirm(message: Message, bot: Bot, message_text: str, message_id: int, chat_id: int, reply_markup: InlineKeyboardMarkup = None):
     '''
@@ -106,6 +110,7 @@ async def confirm(message: Message, bot: Bot, message_text: str, message_id: int
                          ]))
 
 
+@router.callback_query(F.data.in_(["confirm_announce", "cancel_announce"]))
 async def send_process(call: CallbackQuery, bot: Bot, state: FSMContext, request: Request, senderlist: SenderList):
     '''
     Этот хэндлер обрабатывает процесс отправки рассылки(объявления).

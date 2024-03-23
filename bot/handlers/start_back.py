@@ -1,9 +1,9 @@
 from keyboards import reply_keyboards
 from aiogram import Router, F
-from aiogram.enums import ParseMode
 from aiogram.filters import Command
 from aiogram.utils.formatting import Text, Bold
 from aiogram.types import Message
+from aiogram.fsm.context import FSMContext
 
 
 router = Router()
@@ -27,11 +27,12 @@ async def process_start_commands(message: Message):
 
 
 @router.message(F.text.lower().in_({"назад"}))
-async def back_command(message: Message):
+async def back_command(message: Message, state: FSMContext):
     '''
     Этот хэндлер будет срабатывать на кнопку "Назад".
     '''
     await message.answer(
-        text = "Вы вернулись назад",
+        text = "Вы вернулись в главное меню",
         reply_markup= keyboard_start_buttons
     )
+    await state.clear()

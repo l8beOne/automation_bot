@@ -2,23 +2,22 @@ import asyncio
 import asyncpg
 from utils.announcement_sender_list import SenderList
 from middlewares.dbmiddleware import DbSession
-from utils.announcement_state import Steps
 import config
-from aiogram.filters import Command
-from aiogram import Bot, Dispatcher, F
+from aiogram import Bot, Dispatcher
 from handlers import different_types, schedule, start_back, contacts, hse_info, announcement_sender
 from utils import commands
-from filters.is_admin_filter import IsAdminFilter
 from utils.redis_config import storage
 
 
 async def start_bot(bot: Bot):
     await commands.set_commands(bot)
-    await bot.send_message(config.ADMIN_ID, text="Бот запущен!")
+    for admin_id in config.ADMIN_IDS:
+        await bot.send_message(admin_id, text="Бот запущен!")
 
 
 async def stop_bot(bot: Bot):
-    await bot.send_message(config.ADMIN_ID, text="Бот завершил работу!")
+    for admin_id in config.ADMIN_IDS:
+        await bot.send_message(admin_id, text="Бот завершил работу!")
 
 
 async def create_pool():
@@ -35,19 +34,18 @@ async def main():
     # Создаем объекты бота и диспетчера
     bot = Bot(token=config.BOT_TOKEN)
     pool_connect = await create_pool()
-    dp = Dispatcher()
+    dp = Dispatcher(storage=storage)
     dp.update.middleware.register(DbSession(pool_connect))
     dp.startup.register(start_bot)
     dp.shutdown.register(stop_bot)
-    dp.message.register(announcement_sender.make_announce, Command(commands="announce"))
-    dp.message.register(announcement_sender.get_announcement_message, Steps.get_announcement_message)
-    dp.callback_query.register(announcement_sender.select_button, Steps.select_button)
-    dp.message.register(announcement_sender.get_text_button, Steps.get_text_button)
-    dp.message.register(announcement_sender.get_url, Steps.get_url)
-    dp.callback_query.register(announcement_sender.send_process, F.data.in_(["confirm_announce", "cancel_announce"]))
+
+    # Регистрируем роутер для рассылки
+    dp.include_router(announcement_sender.router)
     sender_list = SenderList(bot, pool_connect)
-    # Регистрируем роутеры
+
+    # Регистрируем роутеры для кнопок с информацией
     dp.include_routers(schedule.router, start_back.router, contacts.router, hse_info.router, different_types.router)
+
     # Запускаем бота и пропускаем все накопленные входящие
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot, senderlist=sender_list)
