@@ -4,18 +4,24 @@ services:
   postgres:
     image: postgres
     ports:
-      - 5432:5432
+      - 5430:5432
     environment:
       - POSTGRES_HOST=localhost
-      - POSTGRES_PORT=5432
+      - POSTGRES_PORT=5430
       - POSTGRES_USER=myusername
       - POSTGRES_PASSWORD=mypassword
       - POSTGRES_DB=schedule_db
     volumes:
       - postgres_volume:/var/lib/postgresql/data
-    networks:
-      - test
+    # networks:
+    #   - test
+  redis:
+    image: redis
+    ports:
+      - 6379:6379
+    # networks:
+    #   - test
 
 volumes:
   postgres_volume:
-   external: false
+    external: false

@@ -1,0 +1,14 @@
+aiogram
+fastapi
+pydantic[email]
+uvicorn
+sqlalchemy
+pandas
+google-api-python-client
+oauth2client
+python-dotenv
+alembic
+asyncpg
+apiclient
+greenlet
+redis
