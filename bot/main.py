@@ -1,10 +1,11 @@
 import asyncio
 import asyncpg
 from utils.announcement_sender_list import SenderList
+from utils.response_to_question_class import QuestionResponse
 from middlewares.dbmiddleware import DbSession
 import config
 from aiogram import Bot, Dispatcher
-from handlers import different_types, schedule, start_back, contacts, hse_info, announcement_sender
+from handlers import response_to_question, schedule, start_back, contacts, hse_info, announcement_sender
 from utils import commands
 from utils.redis_config import storage
 
@@ -42,13 +43,14 @@ async def main():
     # Регистрируем роутер для рассылки
     dp.include_router(announcement_sender.router)
     sender_list = SenderList(bot, pool_connect)
+    question_response = QuestionResponse(bot, pool_connect)
 
     # Регистрируем роутеры для кнопок с информацией
-    dp.include_routers(schedule.router, start_back.router, contacts.router, hse_info.router, different_types.router)
+    dp.include_routers(schedule.router, start_back.router, contacts.router, hse_info.router, response_to_question.router)
 
     # Запускаем бота и пропускаем все накопленные входящие
     await bot.delete_webhook(drop_pending_updates=True)
-    await dp.start_polling(bot, senderlist=sender_list)
+    await dp.start_polling(bot, senderlist=sender_list, questionresponse=question_response)
     
 
 if __name__ == '__main__':

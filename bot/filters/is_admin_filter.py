@@ -13,3 +13,10 @@ class AdminCommandFilter(Filter):
         if message.text.split()[0] != self.my_text:
             return False
         return True
+
+
+class IsAdminFilter(Filter):
+    async def __call__(self, message: Message) -> bool:
+        if message.from_user.id not in config.ADMIN_IDS:    
+            return False
+        return True
