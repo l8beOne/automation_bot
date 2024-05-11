@@ -8,16 +8,6 @@ from oauth2client.service_account import ServiceAccountCredentials
 
 router = Router()
 
-
-@router.message(Command(commands=['help']))
-async def process_help_command(message: Message):
-    '''
-    Этот хэндлер будет срабатывать на команду "/help"
-    '''
-    await message.answer(
-        'schedule'
-    )
-
 @router.message(Command(commands=['schedule']))
 async def process_schedule_command(message: Message):
     '''

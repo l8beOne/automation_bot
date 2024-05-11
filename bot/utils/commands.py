@@ -9,6 +9,10 @@ async def set_commands(bot: Bot):
             command = "start",
             description="Начало работы",
         ),
+        BotCommand(
+            command = "help",
+            description="Правила и рекомендации пользования ботом",
+        ),
     ]
     commands_for_admins = [
         BotCommand(
@@ -18,6 +22,10 @@ async def set_commands(bot: Bot):
         BotCommand(
             command = "announce",
             description="Начать рассылку",
+        ),
+        BotCommand(
+            command = "mute",
+            description="Замутить пользователя(запретить писать сообщения)",
         ),
     ]
     await bot.set_my_commands(commands_for_users, scope=BotCommandScopeDefault())

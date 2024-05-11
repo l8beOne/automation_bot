@@ -21,6 +21,11 @@ class Request:
     async def create_question_response_table(self, table_name):
         query = f"CREATE TABLE {table_name} (user_id bigint NOT NULL, question_id bigint NOT NULL, question text, response text, status text, PRIMARY KEY (question));"
         await self.connector.execute(query)
+    
+
+    async def create_user_status_table(self, table_name):
+        query = f"CREATE TABLE {table_name} (user_id bigint NOT NULL, user_status text, PRIMARY KEY (user_id));"
+        await self.connector.execute(query)
 
 
     async def drop_announcement_table(self, table_name):
