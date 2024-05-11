@@ -12,3 +12,4 @@ asyncpg
 apiclient
 greenlet
 redis
+apscheduler
