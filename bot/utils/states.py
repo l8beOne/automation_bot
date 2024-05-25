@@ -6,3 +6,11 @@ class AnnouncementSteps(StatesGroup):
     select_button = State()
     get_text_button = State()
     get_url = State()
+
+
+class CertificateFormSteps(StatesGroup):
+    get_full_name = State()
+
+
+class DialogSteps(StatesGroup):
+    start_dialog = State()

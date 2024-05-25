@@ -1,5 +1,6 @@
 from aiogram.filters import Filter
 from aiogram.types import Message
+
 import config
 
 
@@ -8,7 +9,7 @@ class AdminCommandFilter(Filter):
         self.my_text = my_text
 
     async def __call__(self, message: Message) -> bool:
-        if message.from_user.id not in config.ADMIN_IDS:    
+        if message.from_user.id not in config.ADMIN_IDS:
             return False
         if message.text.split()[0] != self.my_text:
             return False
@@ -17,6 +18,6 @@ class AdminCommandFilter(Filter):
 
 class IsAdminFilter(Filter):
     async def __call__(self, message: Message) -> bool:
-        if message.from_user.id not in config.ADMIN_IDS:    
+        if message.from_user.id not in config.ADMIN_IDS:
             return False
         return True
