@@ -12,6 +12,7 @@ from aiogram.fsm.context import FSMContext
 router = Router()
 op_course_keyboard = reply_keyboards.schedule_op_course_buttons()
 day_selection_keyboard = reply_keyboards.schedule_day_buttons()
+keyboard_start_buttons = reply_keyboards.start_buttons()
 
 class Schedule(StatesGroup):
     op_course = State()
@@ -30,31 +31,38 @@ async def ScheduleForMonday(message: Message, state: FSMContext):
     await state.update_data(op_course=message.text)
     await state.set_state(Schedule.day)
     await message.answer("Выбор дня", reply_markup=day_selection_keyboard)
+    
 
 
 @router.message(Schedule.day)
 async def ScheduleForMonday(message: Message, state: FSMContext):
     await state.update_data(day=message.text)
     op_course_day = await state.get_data()
+    if op_course_day["day"] in ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ']:
+        # Авторизуемся и получаем service — экземпляр доступа к API
+        credentials = ServiceAccountCredentials.from_json_keyfile_name(
+            config.CREDENTIALS_FILE,
+            ['https://www.googleapis.com/auth/spreadsheets',
+            'https://www.googleapis.com/auth/drive'])
+        httpAuth = credentials.authorize(httplib2.Http())
+        service = googleapiclient.discovery.build('sheets', 'v4', http = httpAuth)
 
-    # Авторизуемся и получаем service — экземпляр доступа к API
-    credentials = ServiceAccountCredentials.from_json_keyfile_name(
-        config.CREDENTIALS_FILE,
-        ['https://www.googleapis.com/auth/spreadsheets',
-         'https://www.googleapis.com/auth/drive'])
-    httpAuth = credentials.authorize(httplib2.Http())
-    service = googleapiclient.discovery.build('sheets', 'v4', http = httpAuth)
+        # Пример чтения файла    
+        values = list(service.spreadsheets().values().get(
+            spreadsheetId=config.spreadsheet_id,
+            range='I2:M12',
+            majorDimension='ROWS'
+        ).execute().values())[2:][0]
 
-    # Пример чтения файла    
-    values = list(service.spreadsheets().values().get(
-        spreadsheetId=config.spreadsheet_id,
-        range='I2:M12',
-        majorDimension='ROWS'
-    ).execute().values())[2:][0]
-
-    schedule = []
-    for rows in values:
-        schedule.append(' '.join(rows))
-    await message.answer('\n\n'.join(schedule))
-    await message.answer(f' день: {op_course_day["day"]}')
-    await state.clear()
+        schedule = []
+        for rows in values:
+            schedule.append(' '.join(rows))
+        await message.answer('\n\n'.join(schedule))
+        await message.answer(f' день: {op_course_day["day"]}')
+    else:
+        await message.answer(
+            text = "Вы вернулись в главное меню",
+            reply_markup= keyboard_start_buttons
+        )
+        await state.clear()
+    
