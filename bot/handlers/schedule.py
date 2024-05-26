@@ -1,6 +1,7 @@
 import httplib2
 import googleapiclient.discovery
 import config
+from keyboards import reply_keyboards
 from aiogram import Router, F
 from aiogram.filters import Command
 from aiogram.types import Message, KeyboardButton, ReplyKeyboardMarkup
@@ -9,7 +10,8 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
 
 router = Router()
-
+op_course_keyboard = reply_keyboards.schedule_op_course_buttons()
+day_selection_keyboard = reply_keyboards.schedule_day_buttons()
 
 class Schedule(StatesGroup):
     op_course = State()
@@ -20,49 +22,16 @@ async def process_schedule_command(message: Message, state: FSMContext):
     '''
     Этот хэндлер обрабатывает кнопку "Расписание".
     '''
-
     await state.set_state(Schedule.op_course)
-
-    kb = [
-        [
-            KeyboardButton(text="ПАДИИ 1"),
-            KeyboardButton(text="ПМИ 1")
-        ],
-        [
-            KeyboardButton(text="ПАДИИ 2"),
-            KeyboardButton(text="ПМИ 2")
-        ],
-    ]
-    keyboard = ReplyKeyboardMarkup(
-        keyboard=kb,
-        resize_keyboard=True,
-        input_field_placeholder="ОП Курс"
-    )
-    await message.answer("Выбор оп и курса", reply_markup=keyboard)
+    await message.answer("Выбор оп и курса", reply_markup=op_course_keyboard)
     
 @router.message(Schedule.op_course)
 async def ScheduleForMonday(message: Message, state: FSMContext):
     await state.update_data(op_course=message.text)
     await state.set_state(Schedule.day)
-    kb = [
-        [
-            KeyboardButton(text="ПН"),
-            KeyboardButton(text="ВТ"),
-            KeyboardButton(text="СР"),
-            KeyboardButton(text="ЧТ"),
-            KeyboardButton(text="ПТ"),
-            KeyboardButton(text="СБ")
-        ],     
-    ]
-    keyboard = ReplyKeyboardMarkup(
-        keyboard=kb,
-        resize_keyboard=True,
-        input_field_placeholder="День"
-    )
-    await message.answer("Выбор дня", reply_markup=keyboard)
+    await message.answer("Выбор дня", reply_markup=day_selection_keyboard)
 
 
-#@router.message(F.text.lower().in_({"пн"}))
 @router.message(Schedule.day)
 async def ScheduleForMonday(message: Message, state: FSMContext):
     await state.update_data(day=message.text)
