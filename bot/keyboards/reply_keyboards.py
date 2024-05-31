@@ -56,8 +56,8 @@ def schedule_op_course_buttons():
         KeyboardButton(text="ПМИ 1")
     )
     builder.row(
-        KeyboardButton(text="ПАДИИ 1"),
-        KeyboardButton(text="ПМИ 1")
+        KeyboardButton(text="ПАДИИ 2"),
+        KeyboardButton(text="ПМИ 2")
     )
     op_course_keyboard = builder.as_markup(resize_keyboard=True)
     return op_course_keyboard
