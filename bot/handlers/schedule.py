@@ -47,10 +47,15 @@ async def ScheduleForMonday(message: Message, state: FSMContext):
         httpAuth = credentials.authorize(httplib2.Http())
         service = googleapiclient.discovery.build('sheets', 'v4', http = httpAuth)
 
+        # Получаем информацию обо всех листах в таблице sheets[1]['properties']['title']
+        spreadsheet = service.spreadsheets().get(spreadsheetId=config.spreadsheet_id).execute()
+        sheets = spreadsheet.get('sheets', [])
+        sheets_number = [' ', sheets[3]['properties']['title'], sheets[4]['properties']['title']]
+        sheet_course= sheets_number[int(op_course_day["op_course"][-1])]
         # Пример чтения файла    
         values = list(service.spreadsheets().values().get(
             spreadsheetId=config.spreadsheet_id,
-            range='I2:M12',
+            range=f'{sheet_course}!I2:M12',
             majorDimension='ROWS'
         ).execute().values())[2:][0]
 
