@@ -3,9 +3,7 @@ from aiogram.types import Message
 
 router = Router()
 
+
 @router.message()
-async def send_echo(message: Message):
-    '''
-    Этот хэндлер будет срабатывать на любые текстовые сообщения (кроме /start /help /schedule)
-    '''
-    await message.reply(text=message.text)
+async def different_types(message: Message):
+    await message.answer("Я не умею обрабатывать такого рода сообщения.")

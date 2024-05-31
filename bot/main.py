@@ -1,12 +1,33 @@
 import asyncio
+
 import asyncpg
-from utils.announcement_sender_list import SenderList
-from middlewares.dbmiddleware import DbSession
-import config
 from aiogram import Bot, Dispatcher
-from handlers import different_types, schedule, start_back, contacts, hse_info, announcement_sender
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+
+import config
+from handlers import (
+    announcement_sender,
+    certificate,
+    contacts,
+    different_types,
+    hse_info,
+    mute,
+    response_to_question,
+    schedule,
+    start_back,
+)
+# from handlers.schedule_tracking import (
+#     check_for_updates,
+#     compare_prev_current_schedule_results,
+# )
+from middlewares.apschedulermiddleware import SchedulerMiddleware
+from middlewares.dbmiddleware import DbSession
 from utils import commands
+from utils.announcement_sender_list import SenderList
+# from utils.database_connect import Request
 from utils.redis_config import storage
+from utils.response_to_question_class import QuestionResponse
+from utils.user_status_class import UserStatusClass
 
 
 async def start_bot(bot: Bot):
@@ -34,22 +55,54 @@ async def main():
     # Создаем объекты бота и диспетчера
     bot = Bot(token=config.BOT_TOKEN)
     pool_connect = await create_pool()
+    scheduler = AsyncIOScheduler(timezone="Europe/Moscow")
     dp = Dispatcher(storage=storage)
     dp.update.middleware.register(DbSession(pool_connect))
+    dp.update.middleware.register(SchedulerMiddleware(scheduler))
     dp.startup.register(start_bot)
     dp.shutdown.register(stop_bot)
 
     # Регистрируем роутер для рассылки
     dp.include_router(announcement_sender.router)
     sender_list = SenderList(bot, pool_connect)
+    question_response = QuestionResponse(bot, pool_connect)
+    users_status = UserStatusClass(bot, pool_connect)
+    # request = Request(pool_connect)
+
+    # Вставить эту функцию при выборе пользователем его ОП и курса
+    # start_schedule_data = check_for_updates(config.SCHEDULE_PARAMS)
+    # await compare_prev_current_schedule_results(
+    #     bot,
+    #     start_schedule_data,
+    #     users_status,
+    #     scheduler,
+    #     request,
+    #     sender_list
+    # )
+
+    scheduler.start()
 
     # Регистрируем роутеры для кнопок с информацией
-    dp.include_routers(schedule.router, start_back.router, contacts.router, hse_info.router, different_types.router)
+    dp.include_routers(
+        schedule.router,
+        start_back.router,
+        certificate.router,
+        contacts.router,
+        hse_info.router,
+        mute.router,
+        response_to_question.router,
+        different_types.router,
+    )
 
     # Запускаем бота и пропускаем все накопленные входящие
     await bot.delete_webhook(drop_pending_updates=True)
-    await dp.start_polling(bot, senderlist=sender_list)
-    
+    await dp.start_polling(
+        bot,
+        senderlist=sender_list,
+        questionresponse=question_response,
+        userstatus=users_status,
+    )
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     asyncio.run(main())
