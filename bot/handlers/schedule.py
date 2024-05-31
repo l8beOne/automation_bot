@@ -38,6 +38,11 @@ async def ScheduleForMonday(message: Message, state: FSMContext):
 async def ScheduleForMonday(message: Message, state: FSMContext):
     await state.update_data(day=message.text)
     op_course_day = await state.get_data()
+    days_ranges = {'ПАДИИ 1' : {'ПН': 'J3:M11', 'ВТ': 'J13:M21', 'СР': 'J23:M31', 'ЧТ': 'J33:M43', 'ПТ': 'J45:M52', 'СБ': 'J54:M61'}
+               , 'ПМИ 1' : {'ПН': 'C3:F11', 'ВТ': 'C13:F21', 'СР': 'C23:F31', 'ЧТ': 'C33:F43', 'ПТ': 'C45:F52', 'СБ': 'C54:F61'}
+               , 'ПАДИИ 2' : {'ПН': 'J3:M11', 'ВТ': 'J13:M21', 'СР': 'J23:M33', 'ЧТ': 'J35:M44', 'ПТ': 'J46:M54', 'СБ': 'J56:M63'}
+               , 'ПМИ 2' : {'ПН': 'C3:F11', 'ВТ': 'C13:F21', 'СР': 'F23:F33', 'ЧТ': 'C35:F44', 'ПТ': 'C46:F54', 'СБ': 'C56:F63'}
+               }
     if op_course_day["day"] in ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ']:
         # Авторизуемся и получаем service — экземпляр доступа к API
         credentials = ServiceAccountCredentials.from_json_keyfile_name(
@@ -52,10 +57,11 @@ async def ScheduleForMonday(message: Message, state: FSMContext):
         sheets = spreadsheet.get('sheets', [])
         sheets_number = [' ', sheets[3]['properties']['title'], sheets[4]['properties']['title']]
         sheet_course= sheets_number[int(op_course_day["op_course"][-1])]
+        day_range = days_ranges[op_course_day["op_course"]][op_course_day["day"]]
         # Пример чтения файла    
         values = list(service.spreadsheets().values().get(
             spreadsheetId=config.spreadsheet_id,
-            range=f'{sheet_course}!I2:M12',
+            range=f'{sheet_course}!{day_range}',
             majorDimension='ROWS'
         ).execute().values())[2:][0]
 
