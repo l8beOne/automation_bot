@@ -67,9 +67,11 @@ async def ScheduleForMonday(message: Message, state: FSMContext):
 
         schedule = []
         for rows in values:
-            schedule.append(' '.join(rows))
-        await message.answer('\n\n'.join(schedule))
-        await message.answer(f' день: {op_course_day["day"]}')
+            s = '\n'.join(rows)
+            if s.strip() != '':
+                schedule.append(' '.join(rows))
+        await message.answer(f'Расписание на {op_course_day["day"]} \n\n' + 
+                             '\n--------------------------------------------------------------------\n'.join(schedule))
     else:
         await message.answer(
             text = "Вы вернулись в главное меню",
